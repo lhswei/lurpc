@@ -1,6 +1,11 @@
 #include <memory.h>
+#include <lua/lua.hpp>
 #include "tcp_servertest.h"
 #include "lpublic.h"
+
+#pragma comment (lib, "ws2_32.lib")  //加载 ws2_32.dll  
+
+extern lua_State* luaEnv;
 
 LTcpServerTest::LTcpServerTest(int nPort)
 {
@@ -23,6 +28,10 @@ int LTcpServerTest::Init()
     int nResult = 0;
     int nRetCode = 0;
     LU_PROCESS_ERROR(m_nPort > 1024 && m_nPort < 65534);
+
+	//初始化 DLL  
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
     m_socketServer = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     LU_PROCESS_ERROR(m_socketServer >= 0);
@@ -47,7 +56,9 @@ void LTcpServerTest::UnInit()
 {
     if (m_socketServer >= 0)
     {
-        close(m_socketServer);
+		closesocket(m_socketServer);
+		//终止 DLL 的使用  
+		WSACleanup();
     }
 }
 
@@ -62,7 +73,7 @@ void LTcpServerTest::Run()
     sockaddr_in sockaddrClient;
     char pBuffer[_TCP_MAX_BUFFER_SIZE];
     int nRetCode = 0;
-    socklen_t nsin_size = sizeof(struct sockaddr_in);
+    int nsin_size = sizeof(struct sockaddr_in);
 
     nClientConn = accept(m_socketServer, (struct sockaddr*)&sockaddrClient, &nsin_size);
     LU_PROCESS_ERROR(nClientConn >= 0);
@@ -71,7 +82,7 @@ void LTcpServerTest::Run()
     while (true)
     {
         memset(pBuffer, 0, _TCP_MAX_BUFFER_SIZE);
-        nRetCode = recv(nClientConn, pBuffer, _TCP_MAX_BUFFER_SIZE - 1, MSG_DONTWAIT);
+        nRetCode = recv(nClientConn, pBuffer, _TCP_MAX_BUFFER_SIZE - 1, 0);
         if (nRetCode > 0)
         {
             printf("Received message: %s\n", pBuffer);
@@ -85,7 +96,7 @@ void LTcpServerTest::Run()
         L_SLEEP(1000);
     }
 
-    close(nClientConn);
+	closesocket(nClientConn);
 Exit0:
     return;
 }

@@ -11,8 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>  
 #include <stddef.h> 
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include <winsock2.h>  
 #include <errno.h>
 #include <map>
 #include "../tcp_def.h"

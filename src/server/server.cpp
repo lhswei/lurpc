@@ -8,14 +8,14 @@
 #include "tcp_servertest.h"
 
 lua_State* luaEnv = nullptr;
-const char* s_default_ini_script = "./script/server/init.lua";
+const char* s_default_ini_script = "./server/init.lua";
 
 int init_script()
 {
     int ret = 0;
     if (!luaEnv)
         return ret;
-    ret = luaL_dofile(L, s_default_ini_script);
+    ret = luaL_dofile(luaEnv, s_default_ini_script);
     return ret;
 }
 
@@ -34,11 +34,11 @@ int init_lua()
 }
 int main(int argc, char *argv[])
 {
-    init_lua()
-    init_script()
+	init_lua();
+	init_script();
     if (luaEnv)
     {
-        LTcpServerTest tcpServer(_TCPTEST_DEFAULT_SERVER_PORT);
+        LTcpServerTest tcpServer(_TCP_DEFAULT_SERVER_PORT);
         if (tcpServer.Init() == 1)
         {
             tcpServer.Run();
