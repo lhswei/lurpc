@@ -10,7 +10,7 @@ rpc = rpc or {}
 function rpc_call(cmd, ...)
     -- body
     -- to do 
-    return "hello world!", 100
+    return "hello world!", 100;
 end
 
 function make_closure(cmd)
@@ -46,3 +46,4 @@ end
 
 
 
+return rpc;
