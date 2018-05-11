@@ -8,12 +8,9 @@
 @ please check Licence.txt file for licence and legal issues. 
 ]]
 
-require("rpc");
-rpc._net_ = rpc._net_ or {};
-local net = rpc._net_;
+rpc = rpc or {};
 
-function net.syn_call(cmd, ...)
-    -- to do 
 
-    return "hello world!", 100;
-end
+
+
+return rpc;

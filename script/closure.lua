@@ -8,15 +8,18 @@
 @ please check Licence.txt file for licence and legal issues. 
 ]]
 
+require("net");
 
-rpc = rpc or {}
-function rpc_call(cmd, ...)
+rpc._closuer_ = rpc._closuer_ or {};
+local cl = rpc._closuer_;
+local net = rpc._net_;
+
+function cl.rpc_call(cmd, ...)
     -- body
-    -- to do 
-    return "hello world!", 100;
+    return net.syn_call(cmd, ...);
 end
 
-function make_closure(cmd)
+function cl.make_closure(cmd)
     -- body
     if type(cmd) ~= "string" or cmd == "" then
         return;
@@ -32,7 +35,7 @@ function make_closure(cmd)
     local mt = {}
     mt.__call = function(tb, ...)
         -- body
-        return rpc_call(cmd, ...);
+        return cl.rpc_call(cmd, ...);
     end
 
     if tb ~= rpc then
@@ -43,10 +46,8 @@ function make_closure(cmd)
 end
 
 -- use
--- make_closure("online.childrenday.dailyaward");
+-- cl.make_closure("online.childrenday.dailyaward");
 -- local msg, code = rpc.online.childrenday.dailyaward("hi!");
 -- print(msg, code)
 
 
-
-return rpc;
