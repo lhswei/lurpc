@@ -1,10 +1,13 @@
 --[[
 @ lurpc - Simple and light rpc framework.
 @
-@ Copyright (c) 2018 luhengsi (luhengsi@163.com)
-@ 
+@ Author luhengsi 
+@ Mail   luhengsi@163.com
+@ Date   2018-05-11
+@
 @ please check Licence.txt file for licence and legal issues. 
 ]]
+
 
 rpc = rpc or {}
 function rpc_call(cmd, ...)
