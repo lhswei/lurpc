@@ -14,6 +14,6 @@ local net = rpc._net_;
 
 function net.syn_call(cmd, ...)
     -- to do 
-
-    return "hello world!", 100;
+    local var = glib.rpc_call(cmd, ...);
+    return var; --"hello world!", 100;
 end

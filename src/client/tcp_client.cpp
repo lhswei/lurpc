@@ -1,10 +1,15 @@
 #include <iostream>
 #include <memory.h>
-#include <lua/lua.hpp>
 #include "lpublic.h"
 #include "tcp_client.h"
+#include <lua/lua.hpp>
+#include <functional>
+#include <string>
 
-extent lua_State* luaEnv;
+#pragma comment (lib, "Ws2_32.lib")
+
+
+extern lua_State* luaEnv;
 
 LTcpClientTest::LTcpClientTest(const char* szIPAress, int nPort)
 {
@@ -32,7 +37,10 @@ int LTcpClientTest::Init()
 {
     int nResult = 0;
     int nRetCode = 0;
+    WSADATA wsaData;
 
+    // Initialize Winsock
+    LU_PROCESS_ERROR(WSAStartup(MAKEWORD(2,2), &wsaData) == 0);
     LU_PROCESS_ERROR(m_szIPAdress[0]);
     LU_PROCESS_ERROR(m_nPort > 1024 && m_nPort < 65534);
 
@@ -42,8 +50,9 @@ int LTcpClientTest::Init()
     memset(&m_server_addr, 0, sizeof(m_server_addr));
     m_server_addr.sin_family = AF_INET;
     m_server_addr.sin_port = htons(m_nPort);
-    nRetCode = inet_pton(AF_INET, m_szIPAdress, &m_server_addr.sin_addr);
-    LU_PROCESS_ERROR(nRetCode > 0);
+	m_server_addr.sin_addr.s_addr = inet_addr(m_szIPAdress);
+    //nRetCode = inet_pton(AF_INET, m_szIPAdress, &m_server_addr.sin_addr);
+    //LU_PROCESS_ERROR(nRetCode > 0);
 
     nResult = 1;
 Exit0:
@@ -55,9 +64,37 @@ void LTcpClientTest::Unit()
 {
     if (m_socketConn >= 0)
     {
-        close(m_socketConn);
-        m_socketConn = -1;
+        closesocket(m_socketConn);
+        m_socketConn = INVALID_SOCKET;
+        WSACleanup();
     }
+}
+
+void LTcpClientTest::InitScriptLib()
+{
+	static int& conn = m_socketConn;
+	lua_CFunction fun = [](lua_State* L)->int {
+		size_t len = 0;
+		char szMessage[_TCP_MAX_BUFFER_SIZE];
+		const char* msg = luaL_checklstring(L, 1, &len);
+		int nRetCode = send(conn, msg, len, 0);
+		printf("send result = %d\n", nRetCode);
+		memset(szMessage, 0, _TCP_MAX_BUFFER_SIZE);
+		int len1 = recv(conn, szMessage, _TCP_MAX_BUFFER_SIZE - 1, 0);
+		if (len1 > 0)
+			lua_pushstring(luaEnv, szMessage);
+		else
+			lua_pushnil(luaEnv);
+		return 1;
+	};
+
+	struct luaL_Reg lib[] =
+	{
+		{ "rpc_call", fun },
+	{ NULL, NULL }
+	};
+
+	luaL_register(luaEnv, "glib", lib);
 }
 
 int LTcpClientTest::Connect2Server()
@@ -83,8 +120,7 @@ void LTcpClientTest::Run()
         printf("send message: ");
         memset(szMessage, 0, _TCP_MAX_BUFFER_SIZE);
         fgets(szMessage, _TCP_MAX_BUFFER_SIZE - 1, stdin);
-        nRetCode = send(m_socketConn, szMessage, strlen(szMessage), 0);
-        printf("send result = %d\n", nRetCode);
+		int nRet = luaL_dostring(luaEnv, szMessage);
         L_SLEEP(1);
     }
 }

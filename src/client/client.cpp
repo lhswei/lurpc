@@ -8,14 +8,14 @@
 #include "client.hpp"
 
 lua_State* luaEnv = nullptr;
-const char* s_default_ini_script = "./script/init.lua";
+const char* s_default_ini_script = "./init.lua";
 
 int init_script()
 {
     int ret = 0;
     if (!luaEnv)
         return ret;
-    ret = luaL_dofile(L, s_default_ini_script);
+    ret = luaL_dofile(luaEnv, s_default_ini_script);
     return ret;
 }
 
@@ -32,15 +32,17 @@ int init_lua()
     luaL_openlibs(luaEnv);
     return 1;
 }
+
 int main(int argc, char *argv[])
 {
-    init_lua()
-    init_script()
+	init_lua();
+	init_script();
     if (luaEnv)
     {
         LTcpClientTest tcpClient("127.0.0.1", _TCP_DEFAULT_SERVER_PORT);
         if (tcpClient.Init() == 1 && tcpClient.Connect2Server() == 1)
         {
+			tcpClient.InitScriptLib();
             tcpClient.Run();
         }
     }

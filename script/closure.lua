@@ -46,8 +46,8 @@ function cl.make_closure(cmd)
 end
 
 -- use
--- cl.make_closure("online.childrenday.dailyaward");
+cl.make_closure("online.childrenday.dailyaward");
 -- local msg, code = rpc.online.childrenday.dailyaward("hi!");
 -- print(msg, code)
-
+rpc._closuer_.make_closure("online.childrenday.weeklyaward");
 

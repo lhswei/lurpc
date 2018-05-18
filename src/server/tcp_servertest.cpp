@@ -86,6 +86,8 @@ void LTcpServerTest::Run()
         if (nRetCode > 0)
         {
             printf("Received message: %s\n", pBuffer);
+			int nret = send(nClientConn, pBuffer, nRetCode, 0);
+			printf("send code = %d\n", nret);
         }
         else if(nRetCode == 0)
         {
@@ -93,7 +95,7 @@ void LTcpServerTest::Run()
             break;
         }
         // printf("waitting for message...\n");
-        L_SLEEP(1000);
+        L_SLEEP(1);
     }
 
 	closesocket(nClientConn);
