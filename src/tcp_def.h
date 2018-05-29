@@ -17,7 +17,7 @@
 #define _TCP_DEFAULT_SERVER_PORT    8869
 #define _TCP_MAX_CONN_WAIT          10
 #define _TCP_CHAR_IP_LEN            33
-#define _TCP_MAX_BUFFER_SIZE        1024
+#define _TCP_MAX_BUFFER_SIZE        (1024 * 4) 
 
 
 #ifndef L_SLEEP(s)

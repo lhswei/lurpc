@@ -9,14 +9,19 @@
 
 lua_State* luaEnv = nullptr;
 const char* s_default_ini_script = "./init.lua";
-
+void PrintLuaError(lua_State* L, int sErr);
 int init_script()
 {
-    int ret = 0;
     if (!luaEnv)
-        return ret;
+        return 0;
+
+    int ret = 0;
     ret = luaL_dofile(luaEnv, s_default_ini_script);
-    return ret;
+	if (ret != 0)
+	{
+		PrintLuaError(luaEnv, ret);
+	}
+    return 1;
 }
 
 int init_lua()
